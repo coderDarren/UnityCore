@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace UnityCore {
@@ -42,7 +41,7 @@ namespace UnityCore {
 #endregion
 
 #region Public Functions
-            public async void TurnPageOn(PageType _type) {
+            public void TurnPageOn(PageType _type) {
                 if (!PageExists(_type)) {
                     LogWarning("You are trying to turn a page on ["+_type+"] that has not been registered.");
                     return;
@@ -50,18 +49,17 @@ namespace UnityCore {
 
                 Page _page = GetPage(_type);
                 _page.gameObject.SetActive(true);
-                await _page.Animate(true);
+                _page.Animate(true);
             }
 
-            public async void TurnPageOff(PageType _type) {
+            public void TurnPageOff(PageType _type) {
                 if (!PageExists(_type)) {
                     LogWarning("You are trying to turn a page off ["+_type+"] that has not been registered.");
                     return;
                 }
 
                 Page _page = GetPage(_type);
-                await _page.Animate(false);
-                //_page.gameObject.SetActive(false);
+                _page.Animate(false);
             }
 #endregion
 
