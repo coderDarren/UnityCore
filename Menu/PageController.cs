@@ -132,6 +132,10 @@ namespace UnityCore {
                 Debug.LogWarning("[Page Controller]: "+_msg);
             }
 #endregion
+
+#region Tests
+
+#endregion
         }
     }
 }
