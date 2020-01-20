@@ -4,7 +4,8 @@
 
         public enum PageType {
             None,
-            Loading
+            Loading,
+            Menu
         }
     }
 }

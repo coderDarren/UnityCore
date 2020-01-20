@@ -7,9 +7,13 @@ namespace UnityCore {
 
         public class Page : MonoBehaviour
         {
+            public static readonly string FLAG_ON = "On";
+            public static readonly string FLAG_OFF = "Off";
+            public static readonly string FLAG_NONE = "None";
+
             public PageType type;
             public bool useAnimation;
-            public bool isAnimating {get;private set;}
+            public string targetState {get;private set;}
 
             /*
              * Animaton Requirements...
@@ -18,7 +22,7 @@ namespace UnityCore {
              *      1. Resting
              *      2. Turning On
              *      3. Turning Off
-             *  - The animator must have a control boolean called 'on'. Otherwise a flag will be thrown.
+             *  - The animator must have a control boolean called 'on'. Otherwise the animator will not work.
              */
             private Animator m_Animator;
 
@@ -38,25 +42,24 @@ namespace UnityCore {
 
                     StopCoroutine("AwaitAnimation");
                     StartCoroutine("AwaitAnimation", _on);
-
-                    Log("Page ["+type+"] finished transitioning to "+(_on ? "<color=#0f0>on</color>." : "<color=#f00>off</color>."));
                 }
             }
 #endregion
 
 #region Private Functions
             private IEnumerator AwaitAnimation(bool _on) {
-                string _targetState = _on ? "On" : "Off";
-                isAnimating = true;
+                targetState = _on ? FLAG_ON : FLAG_OFF;
 
-                while (!m_Animator.GetCurrentAnimatorStateInfo(0).IsName(_targetState)) {
+                while (!m_Animator.GetCurrentAnimatorStateInfo(0).IsName(targetState)) {
                     yield return null;
                 }
                 while (m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) {
                     yield return null;
                 }
 
-                isAnimating = false;
+                targetState = FLAG_NONE;
+
+                Log("Page ["+type+"] finished transitioning to "+(_on ? "<color=#0f0>on</color>." : "<color=#f00>off</color>."));
 
                 if (!_on) {
                     gameObject.SetActive(false);
