@@ -53,6 +53,7 @@ namespace UnityCore {
 
 #region Public Functions
             public void TurnPageOn(PageType _type) {
+                if (_type == PageType.None) return;
                 if (!PageExists(_type)) {
                     LogWarning("You are trying to turn a page on ["+_type+"] that has not been registered.");
                     return;
@@ -64,6 +65,7 @@ namespace UnityCore {
             }
 
             public void TurnPageOff(PageType _off, PageType _on=PageType.None, bool _waitForExit=false) {
+                if (_off == PageType.None) return;
                 if (!PageExists(_off)) {
                     LogWarning("You are trying to turn a page off ["+_on+"] that has not been registered.");
                     return;
