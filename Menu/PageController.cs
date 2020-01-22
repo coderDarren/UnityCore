@@ -32,26 +32,12 @@ namespace UnityCore {
                     }
                 }
             }
-
-#if UNITY_EDITOR
-            private void Update() {
-                if (Input.GetKeyUp(KeyCode.F)) {
-                    TurnPageOn(PageType.Loading);
-                }
-                if (Input.GetKeyUp(KeyCode.G)) {
-                    TurnPageOff(PageType.Loading);
-                }
-                if (Input.GetKeyUp(KeyCode.H)) {
-                    TurnPageOff(PageType.Loading, PageType.Menu);
-                }
-                if (Input.GetKeyUp(KeyCode.J)) {
-                    TurnPageOff(PageType.Loading, PageType.Menu, true);
-                }
-            }
-#endif
 #endregion
 
 #region Public Functions
+            /// <summary>
+            /// Turn on page with type '_type'
+            /// </summary>
             public void TurnPageOn(PageType _type) {
                 if (_type == PageType.None) return;
                 if (!PageExists(_type)) {
@@ -64,6 +50,11 @@ namespace UnityCore {
                 _page.Animate(true);
             }
 
+            /// <summary>
+            /// Turn off page with type '_off'
+            /// Optionally turn page with type '_on' on
+            /// Optionally wait for page to exit before turning on optional page
+            /// </summary>
             public void TurnPageOff(PageType _off, PageType _on=PageType.None, bool _waitForExit=false) {
                 if (_off == PageType.None) return;
                 if (!PageExists(_off)) {
@@ -133,10 +124,6 @@ namespace UnityCore {
                 if (!debug) return;
                 Debug.LogWarning("[Page Controller]: "+_msg);
             }
-#endregion
-
-#region Tests
-
 #endregion
         }
     }
