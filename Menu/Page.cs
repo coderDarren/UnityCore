@@ -42,6 +42,10 @@ namespace UnityCore {
 
                     StopCoroutine("AwaitAnimation");
                     StartCoroutine("AwaitAnimation", _on);
+                } else {
+                    if (!_on) {
+                        gameObject.SetActive(false);
+                    }
                 }
             }
 #endregion
