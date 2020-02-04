@@ -28,6 +28,11 @@ namespace UnityCore {
                     return GetInt(DATA_SCORE);
                 }
                 set {
+                    // soft clamp value at 0
+                    if (value < 0) {
+                        value = 0;
+                    }
+                    
                     SaveInt(DATA_SCORE, value);
                     int _score = this.Score;
                     if (_score > this.Highscore) {
