@@ -25,6 +25,16 @@ namespace UnityCore {
              *  - The animator must have a control boolean called 'on'. Otherwise the animator will not work.
              */
             private Animator m_Animator;
+            private bool m_IsOn;
+
+            public bool isOn {
+                get {
+                    return m_IsOn;
+                }
+                private set {
+                    m_IsOn = value;
+                }
+            }
 
 #region Unity Functions
             private void OnEnable() {
@@ -44,7 +54,10 @@ namespace UnityCore {
                     StartCoroutine("AwaitAnimation", _on);
                 } else {
                     if (!_on) {
+                        isOn = false;
                         gameObject.SetActive(false);
+                    } else {
+                        isOn = true;
                     }
                 }
             }
@@ -66,7 +79,10 @@ namespace UnityCore {
                 Log("Page ["+type+"] finished transitioning to "+(_on ? "<color=#0f0>on</color>." : "<color=#f00>off</color>."));
 
                 if (!_on) {
+                    isOn = false;
                     gameObject.SetActive(false);
+                } else {
+                    isOn = true;
                 }
             }
 

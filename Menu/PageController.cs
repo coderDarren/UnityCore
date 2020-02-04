@@ -30,6 +30,10 @@ namespace UnityCore {
                     if (entryPage != PageType.None) {
                         TurnPageOn(entryPage);
                     }
+                    
+                    DontDestroyOnLoad(gameObject);
+                } else {
+                    Destroy(gameObject);
                 }
             }
 #endregion
@@ -74,6 +78,15 @@ namespace UnityCore {
                 } else {
                     TurnPageOn(_on);
                 }
+            }
+
+            public bool PageIsOn(PageType _type) {
+                if (!PageExists(_type)) {
+                    LogWarning("You are trying to detect if a page is on ["+_type+"], but it has not been registered.");
+                    return false;
+                }
+                
+                return GetPage(_type).isOn;
             }
 #endregion
 

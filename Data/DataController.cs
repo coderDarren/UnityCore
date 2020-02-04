@@ -11,6 +11,8 @@ namespace UnityCore {
             private static readonly string DATA_HIGHSCORE = "highscore";
             private static readonly int DEFAULT_INT = 0;
 
+            public static DataController instance;
+
             public bool debug;
 
 #region Properties
@@ -38,6 +40,14 @@ namespace UnityCore {
                     if (_score > this.Highscore) {
                         this.Highscore = _score;
                     }
+                }
+            }
+#endregion
+
+#region Unity Functions
+            private void Awake() {
+                if (!instance) {
+                    instance = this;
                 }
             }
 #endregion
