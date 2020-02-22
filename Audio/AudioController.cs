@@ -21,7 +21,20 @@ namespace UnityCore {
                 RESTART
             }
 
-            private struct AudioJob {
+            [System.Serializable]
+            public class AudioObject {
+                public AudioType type;
+                public AudioClip clip;
+            }
+
+            [System.Serializable]
+            public class AudioTrack
+            {
+                public AudioSource source;
+                public AudioObject[] audio;
+            }
+
+            private class AudioJob {
                 public AudioAction action;
                 public AudioType type;
                 public bool fade;
@@ -78,22 +91,44 @@ namespace UnityCore {
             }
 
             private void AddJob(AudioJob _job) {
-                // cancel the job if one exists with the same type
-                if (m_JobTable.ContainsKey(_job.type)) {
-                    Log("Stopping job on ["+_job.type+"] for new operation: "+_job.action);
-                    IEnumerator _runningJob = (IEnumerator)m_JobTable[_job.type];
-                    StopCoroutine(_runningJob);
-                    m_JobTable.Remove(_job.type);
-                }
-
-                if (GetAudioTrack(_job.type, _job.action.ToString()) == null) {
-                    return;
-                }
+                // cancel any job that might be using this job's audio source
+                RemoveConflictingJobs(_job.type);
 
                 IEnumerator _jobRunner = RunAudioJob(_job);
                 m_JobTable.Add(_job.type, _jobRunner);
                 StartCoroutine(_jobRunner);
                 Log("Starting job on ["+_job.type+"] with operation: "+_job.action);
+            }
+
+            private void RemoveJob(AudioType _type) {
+                if (!m_JobTable.ContainsKey(_type)) {
+                    Log("Trying to stop a job ["+_type+"] that is not running.");
+                    return;
+                }
+                IEnumerator _runningJob = (IEnumerator)m_JobTable[_type];
+                StopCoroutine(_runningJob);
+                m_JobTable.Remove(_type);
+            }
+
+            private void RemoveConflictingJobs(AudioType _type) {
+                // cancel the job if one exists with the same type
+                if (m_JobTable.ContainsKey(_type)) {
+                    RemoveJob(_type);
+                }
+
+                // cancel jobs that share the same audio track
+                AudioType _conflictAudio = AudioType.None;
+                foreach (DictionaryEntry _entry in m_JobTable) {
+                    AudioType _audioType = (AudioType)_entry.Key;
+                    AudioTrack _audioTrackInUse = GetAudioTrack(_audioType, "Get Audio Track In Use");
+                    AudioTrack _audioTrackNeeded = GetAudioTrack(_type, "Get Audio Track Needed");
+                    if (_audioTrackInUse.source == _audioTrackNeeded.source) {
+                        _conflictAudio = _audioType;
+                    }
+                }
+                if (_conflictAudio != AudioType.None) {
+                    RemoveJob(_conflictAudio);
+                }
             }
 
             private IEnumerator RunAudioJob(AudioJob _job) {
