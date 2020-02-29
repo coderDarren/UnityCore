@@ -13,6 +13,7 @@ namespace Tween {
 
         public Keyframe<Vector3>[] keys;
         public float duration;
+        public float delay;
         public bool wrap;
 
         protected Tweener<Vector3> m_Tween;
@@ -29,7 +30,7 @@ namespace Tween {
 
 #region Override Functions
         protected virtual void Init() {
-            m_Tween = new Tweener<Vector3>(keys, duration, wrap);
+            m_Tween = new Tweener<Vector3>(keys, duration, delay, wrap);
             if (m_Tween.Loop != null) {
                 m_Tween.OnSetValue += OnSetValue;
                 m_Tween.OnMoveValue += OnMoveValue;

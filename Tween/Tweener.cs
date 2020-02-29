@@ -14,6 +14,7 @@ namespace Tween {
         
         private Keyframe<T>[] m_Keys;
         private float m_Duration;
+        private float m_Delay;
         private IEnumerator m_Loop;
         private int m_Index = -1;
         private bool m_Wrap;
@@ -25,9 +26,10 @@ namespace Tween {
         }
 
 #region Constructors
-        public Tweener(Keyframe<T>[] _keys, float _duration, bool _wrap) {
+        public Tweener(Keyframe<T>[] _keys, float _duration, float _delay, bool _wrap) {
             m_Keys = _keys;
             m_Duration = _duration;
+            m_Delay = _delay;
             m_Wrap = _wrap;
 
             if (m_Keys.Length > 0) {
@@ -38,6 +40,8 @@ namespace Tween {
 
 #region Private Functions
         private IEnumerator RunTween() {
+            yield return new WaitForSeconds(m_Delay);
+            
             var _key = GetNextKey();
             var _nextKey = GetNextKey();
             float _timer = 0;
