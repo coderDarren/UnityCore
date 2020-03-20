@@ -10,8 +10,8 @@ namespace Tween {
     /// </summary>
     public abstract class Vector3Tween : MonoBehaviour
     {
-
-        public Keyframe<Vector3>[] keys;
+        //public Keyframe<Vector3>[] keys;
+        public Vec3Keyframe[] keys;
         public float duration;
         public float delay;
         public bool wrap;
@@ -28,9 +28,19 @@ namespace Tween {
         }
 #endregion
 
+#region Private Functions
+    private Keyframe<Vector3>[] GenericKeys(Vec3Keyframe[] _keys) {
+        var _ret = new List<Keyframe<Vector3>>();
+        foreach (Vec3Keyframe _frame in _keys) {
+            _ret.Add(new Keyframe<Vector3>(_frame.value, _frame.nTime));
+        }
+        return _ret.ToArray();
+    }
+#endregion
+
 #region Override Functions
         protected virtual void Init() {
-            m_Tween = new Tweener<Vector3>(keys, duration, delay, wrap);
+            m_Tween = new Tweener<Vector3>(GenericKeys(keys), duration, delay, wrap);
             if (m_Tween.Loop != null) {
                 m_Tween.OnSetValue += OnSetValue;
                 m_Tween.OnMoveValue += OnMoveValue;
