@@ -85,7 +85,7 @@ namespace UnityCore {
             private void Dispose() {
                 // cancel all jobs in progress
                 foreach(DictionaryEntry _kvp in m_JobTable) {
-                    IEnumerator _job = (IEnumerator)_kvp.Value;
+                    Coroutine _job = (Coroutine)_kvp.Value;
                     StopCoroutine(_job);
                 }
             }
@@ -94,9 +94,8 @@ namespace UnityCore {
                 // cancel any job that might be using this job's audio source
                 RemoveConflictingJobs(_job.type);
 
-                IEnumerator _jobRunner = RunAudioJob(_job);
+                Coroutine _jobRunner = StartCoroutine(RunAudioJob(_job));
                 m_JobTable.Add(_job.type, _jobRunner);
-                StartCoroutine(_jobRunner);
                 Log("Starting job on ["+_job.type+"] with operation: "+_job.action);
             }
 
@@ -105,7 +104,7 @@ namespace UnityCore {
                     Log("Trying to stop a job ["+_type+"] that is not running.");
                     return;
                 }
-                IEnumerator _runningJob = (IEnumerator)m_JobTable[_type];
+                Coroutine _runningJob = (Coroutine)m_JobTable[_type];
                 StopCoroutine(_runningJob);
                 m_JobTable.Remove(_type);
             }
