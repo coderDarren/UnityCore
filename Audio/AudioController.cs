@@ -38,13 +38,13 @@ namespace UnityCore {
                 public AudioAction action;
                 public AudioType type;
                 public bool fade;
-                public float delay;
+                public WaitForSeconds delay;
 
                 public AudioJob(AudioAction _action, AudioType _type, bool _fade, float _delay) {
                     action = _action;
                     type = _type;
                     fade = _fade;
-                    delay = _delay;
+                    delay = _delay > 0f ? new WaitForSeconds(_delay) : null;
                 }
             }
 
@@ -85,7 +85,7 @@ namespace UnityCore {
             private void Dispose() {
                 // cancel all jobs in progress
                 foreach(DictionaryEntry _kvp in m_JobTable) {
-                    IEnumerator _job = (IEnumerator)_kvp.Value;
+                    Coroutine _job = (Coroutine)_kvp.Value;
                     StopCoroutine(_job);
                 }
             }
@@ -94,9 +94,8 @@ namespace UnityCore {
                 // cancel any job that might be using this job's audio source
                 RemoveConflictingJobs(_job.type);
 
-                IEnumerator _jobRunner = RunAudioJob(_job);
+                Coroutine _jobRunner = StartCoroutine(RunAudioJob(_job));
                 m_JobTable.Add(_job.type, _jobRunner);
-                StartCoroutine(_jobRunner);
                 Log("Starting job on ["+_job.type+"] with operation: "+_job.action);
             }
 
@@ -105,7 +104,7 @@ namespace UnityCore {
                     Log("Trying to stop a job ["+_type+"] that is not running.");
                     return;
                 }
-                IEnumerator _runningJob = (IEnumerator)m_JobTable[_type];
+                Coroutine _runningJob = (Coroutine)m_JobTable[_type];
                 StopCoroutine(_runningJob);
                 m_JobTable.Remove(_type);
             }
@@ -118,12 +117,13 @@ namespace UnityCore {
 
                 // cancel jobs that share the same audio track
                 AudioType _conflictAudio = AudioType.None;
+                AudioTrack _audioTrackNeeded = GetAudioTrack(_type, "Get Audio Track Needed");
                 foreach (DictionaryEntry _entry in m_JobTable) {
                     AudioType _audioType = (AudioType)_entry.Key;
                     AudioTrack _audioTrackInUse = GetAudioTrack(_audioType, "Get Audio Track In Use");
-                    AudioTrack _audioTrackNeeded = GetAudioTrack(_type, "Get Audio Track Needed");
                     if (_audioTrackInUse.source == _audioTrackNeeded.source) {
                         _conflictAudio = _audioType;
+                        break;
                     }
                 }
                 if (_conflictAudio != AudioType.None) {
@@ -132,19 +132,23 @@ namespace UnityCore {
             }
 
             private IEnumerator RunAudioJob(AudioJob _job) {
-                yield return new WaitForSeconds(_job.delay);
+                if (_job.delay != null) yield return _job.delay;
 
                 AudioTrack _track = GetAudioTrack(_job.type); // track existence should be verified by now
                 _track.source.clip = GetAudioClipFromAudioTrack(_job.type, _track);
 
+                float _initial = 0f;
+                float _target = 1f;
                 switch (_job.action) {
                     case AudioAction.START:
                         _track.source.Play();
                     break;
+                    case AudioAction.STOP when !_job.fade:
+                        _track.source.Stop();
+                    break;
                     case AudioAction.STOP:
-                        if (!_job.fade) {
-                            _track.source.Stop();
-                        }
+                        _initial = 1f;
+                        _target = 0f;
                     break;
                     case AudioAction.RESTART:
                         _track.source.Stop();
@@ -154,16 +158,18 @@ namespace UnityCore {
 
                 // fade volume
                 if (_job.fade) {
-                    float _initial = _job.action == AudioAction.START || _job.action == AudioAction.RESTART ? 0 : 1;
-                    float _target = _initial == 0 ? 1 : 0;
                     float _duration = 1.0f;
                     float _timer = 0.0f;
 
-                    while (_timer < _duration) {
+                    while (_timer <= _duration) {
                         _track.source.volume = Mathf.Lerp(_initial, _target, _timer / _duration);
                         _timer += Time.deltaTime;
                         yield return null;
                     }
+
+                    // if _timer was 0.9999 and Time.deltaTime was 0.01 we would not have reached the target
+                    // make sure the volume is set to the value we want
+                    _track.source.volume = _target;
 
                     if (_job.action == AudioAction.STOP) {
                         _track.source.Stop();
