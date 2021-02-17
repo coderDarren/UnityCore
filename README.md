@@ -1,7 +1,5 @@
 # Unity Core
 
-Unity Core is used in the upcoming sci-fi mmorpg, [Existence](https://bit.ly/2ZUqWYs)
-
 Unity Core is a set of highly useful, generic tools built for the Unity 3D game engine. You can pull this source directly into your project's Assets/Scripts directory.
 
 There are 5 categories of tooling in this package:
