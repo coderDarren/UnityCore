@@ -118,12 +118,14 @@ namespace UnityCore {
                     }
                 }
 
-                string _targetSceneName = SceneTypeToString(m_TargetScene);
+                string _targetSceneName = m_TargetScene;
+                // string _targetSceneName = SceneTypeToString(m_TargetScene);
                 SceneManager.LoadScene(_targetSceneName);
             }
 
             private bool SceneCanBeLoaded(SceneType _scene, bool _reload) {
-                string _targetSceneName = SceneTypeToString(_scene);
+                string _targetSceneName = _scene;
+                // string _targetSceneName = SceneTypeToString(_scene);
                 if (currentSceneName == _targetSceneName && !_reload) {
                     LogWarning("You are trying to load a scene ["+_scene+"] which is already active.");
                     return false;
@@ -138,24 +140,32 @@ namespace UnityCore {
                 return true;
             }
 
-            private string SceneTypeToString(SceneType _scene) {
-                switch (_scene) {
-                    case SceneType.Game: return "Game";
-                    case SceneType.Menu: return "Menu";
-                    default:
-                        LogWarning("Scene ["+_scene+"] does not contain a string for a valid scene.");
-                        return string.Empty;
-                }
-            }
+            // No longer needed if scene type enums are named like the scene files in Unity 
+            // private string SceneTypeToString(SceneType _scene) {
+            //     switch (_scene) {
+            //         case SceneType.Game: return "Game";
+            //         case SceneType.Menu: return "Menu";
+            //         default:
+            //             LogWarning("Scene ["+_scene+"] does not contain a string for a valid scene.");
+            //             return string.Empty;
+            //     }
+            // }
 
             private SceneType StringToSceneType(string _scene) {
-                switch (_scene) {
-                    case "Game": return SceneType.Game;
-                    case "Menu": return SceneType.Menu;
-                    default:
-                        LogWarning("Scene ["+_scene+"] does not contain a type for a valid scene.");
-                        return SceneType.None;
+                // Dynamic enumeration so you wouldn't have to manually add case for each individual scene you create in game (just add the type in SceneType)
+                foreach (string name in Enum.GetNames(typeof(SceneType))) {
+                    if (name == _scene) {
+                        return (SceneType) Enum.Parse(typeof(SceneType), name);
+                    }
                 }
+                return SceneType.None
+                // switch (_scene) {
+                //     case "Game": return SceneType.Game;
+                //     case "Menu": return SceneType.Menu;
+                //     default:
+                //         LogWarning("Scene ["+_scene+"] does not contain a type for a valid scene.");
+                //         return SceneType.None;
+                // }
             }
 
             private void Log(string _msg) {
