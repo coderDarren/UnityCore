@@ -12,7 +12,7 @@ namespace UnityCore {
 
             private long m_SessionStartTime;
             private bool m_IsPaused;
-            private GameController m_Game;
+            // private GameController m_Game;
             private float m_FPS;
 
             public long sessionStartTime {
@@ -35,7 +35,7 @@ namespace UnityCore {
             private void OnApplicationFocus(bool _focus) {
                 if (_focus) {
                     // Open a window to unpause the game
-                    PageController.instance.TurnPageOn(PageType.PausePopup);
+                    // PageController.instance.TurnPageOn(PageType.PausePopup);
                 } else {
                     // Flag the game paused
                     m_IsPaused = true;
@@ -44,16 +44,16 @@ namespace UnityCore {
 
             private void Update() {
                 if (m_IsPaused) return;
-                m_Game.OnUpdate();
+                // m_Game.OnUpdate();
                 m_FPS = Time.frameCount / Time.time;
             }
 #endregion
 
 #region Public Functions
-            public void InitializeGame(GameController _game) {
-                m_Game = _game;
-                m_Game.OnInit();
-            }
+            // public void InitializeGame(GameController _game) {
+            //     m_Game = _game;
+            //     m_Game.OnInit();
+            // }
 
             public void UnPause() {
                 m_IsPaused = false;
